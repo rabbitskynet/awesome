@@ -22,7 +22,7 @@ else
        checkbat:close()
 end
 debugtxt = widget({ type = "textbox" })
-if tmpvar ~= "" then
+if tmpvar ~= "" and tmpvar ~= nil then
 	debugtxt.text = "BAT is " .. tmpvar
 	mybattmon = widget({ type = "textbox" })
 	mytimer = timer({ timeout = 10 })
