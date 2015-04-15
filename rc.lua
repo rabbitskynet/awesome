@@ -13,6 +13,35 @@ require("debian.menu")
 vicious = require("vicious")
 
 -- Create a battery monitor widget
+function updatebatterystate()
+	file = io.popen("upower -i \$(upower -e |grep -i BAT) | grep -E 'percentage' | awk '{print \$2}'")
+	text = "NULL"
+	if file == nil then
+		io.close()
+		text = "ERR"
+	else
+		text = file:read()
+		file:close()
+	end
+
+	file = io.popen("upower -i \$(upower -e |grep -i BAT) | grep -E 'state' | awk '{print \$2}'")
+	charging = 0
+	if file == nil then
+		io.close()
+	else
+		tmp = file:read()
+		if tmp == "charging" then
+			charging = 1
+		end
+		file:close()
+	end
+	if charging == 1 then
+		mybattmon.text = '<span color="green">' .. text .. '</span>'
+	else
+		mybattmon.text = '<span color="red">' .. text .. '</span>'
+	end
+end
+
 checkbat = io.popen("upower -e |grep -i BAT")
 tmpvar = ""
 if checkbat == nil then
@@ -23,23 +52,11 @@ else
 end
 debugtxt = widget({ type = "textbox" })
 if tmpvar ~= "" and tmpvar ~= nil then
-	debugtxt.text = "BAT is " .. tmpvar
 	mybattmon = widget({ type = "textbox" })
-	mytimer = timer({ timeout = 10 })
-	mytimer:add_signal("timeout", function()
-		file = io.popen("upower -i \$(upower -e |grep -i BAT) | grep -E 'percentage' | awk '{print \$2}'")
-		mybattmon.text = "DEF"
-		if file == nil then
-			io.close()
-			mybattmon.text = "ERR"
-		else
-			mybattmon.text = file:read()
-			file:close()
-		end
-	end)
+	mytimer = timer({ timeout = 3 })
+	mytimer:add_signal("timeout", updatebatterystate)
 	mytimer:start()
-else
-	debugtxt.text = "BAT was not found"
+	updatebatterystate()
 end
 
 -- {{{ Error handling
