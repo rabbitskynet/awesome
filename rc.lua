@@ -9,33 +9,37 @@ require("naughty")
 
 -- Load Debian menu entries
 require("debian.menu")
+
 vicious = require("vicious")
 
 -- Create a battery monitor widget
 checkbat = io.popen("upower -e |grep -i BAT")
-qq = ""
+tmpvar = ""
 if checkbat == nil then
-	io.close()
+       io.close()
 else
-	qq = checkbat:read()
-	checkbat:close()
+       tmpvar = checkbat:read()
+       checkbat:close()
 end
-if not qq == "" then
+debugtxt = widget({ type = "textbox" })
+if tmpvar ~= "" then
+	debugtxt.text = "BAT is " .. tmpvar
 	mybattmon = widget({ type = "textbox" })
-	mybattmon.text = qq
 	mytimer = timer({ timeout = 10 })
 	mytimer:add_signal("timeout", function()
-	    file = io.popen("upower -i (upower -e |grep -i BAT) | grep -E 'percentage' | awk '{print \$2}'")
-	    if file == nil then
-	        io.close()
-	        mybattmon.text = "ERR"
-	    else
-	        mybattmon.text = "POOP"
-	        mybattmon.text = file:read()
-	        file:close()
-	    end
+		file = io.popen("upower -i \$(upower -e |grep -i BAT) | grep -E 'percentage' | awk '{print \$2}'")
+		mybattmon.text = "DEF"
+		if file == nil then
+			io.close()
+			mybattmon.text = "ERR"
+		else
+			mybattmon.text = file:read()
+			file:close()
+		end
 	end)
 	mytimer:start()
+else
+	debugtxt.text = "BAT was not found"
 end
 
 -- {{{ Error handling
@@ -102,7 +106,7 @@ layouts =
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[1])
+    tags[s] = awful.tag({ "TAG1", 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[1])
 end
 -- }}}
 
@@ -206,13 +210,14 @@ for s = 1, screen.count() do
             mypromptbox[s],
             layout = awful.widget.layout.horizontal.leftright
         },
-        mylayoutbox[s],
-        mytextclock,
-	mybattmon,
-        s == 1 and mysystray or nil,
-        mytasklist[s],
-        layout = awful.widget.layout.horizontal.rightleft
-    }
+		mylayoutbox[s],
+		mytextclock,
+		debugtxt,
+		mybattmon,
+		s == 1 and mysystray or nil,
+		mytasklist[s],
+		layout = awful.widget.layout.horizontal.rightleft
+	}
 end
 -- }}}
 
