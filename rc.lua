@@ -10,6 +10,25 @@ require("naughty")
 -- Load Debian menu entries
 require("debian.menu")
 
+
+vicious = require("vicious")
+
+-- Create a battery monitor widget
+mybattmon = widget({ type = "textbox" })
+mytimer = timer({ timeout = 10 })
+mytimer:add_signal("timeout", function()
+    file = io.popen("upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep -E 'percentage' | awk '{print \$2}'")
+    mybattmon.text = "DEF"
+    if file == nil then
+        io.close()
+        mybattmon.text = "ERR"
+    else
+        mybattmon.text = file:read()
+        file:close()
+    end
+end)
+mytimer:start()
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -74,7 +93,7 @@ layouts =
 tags = {}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
-    tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[1])
+    tags[s] = awful.tag({ "TAG1", 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[1])
 end
 -- }}}
 
@@ -180,6 +199,7 @@ for s = 1, screen.count() do
         },
         mylayoutbox[s],
         mytextclock,
+	mybattmon,
         s == 1 and mysystray or nil,
         mytasklist[s],
         layout = awful.widget.layout.horizontal.rightleft
