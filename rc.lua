@@ -90,6 +90,7 @@ beautiful.init("/usr/share/awesome/themes/default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "x-terminal-emulator"
+chrome = "chromium-browser"
 editor = os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -229,9 +230,9 @@ for s = 1, screen.count() do
         },
 		mylayoutbox[s],
 		mytextclock,
+		s == 1 and mysystray or nil,
 		debugtxt,
 		mybattmon,
-		s == 1 and mysystray or nil,
 		mytasklist[s],
 		layout = awful.widget.layout.horizontal.rightleft
 	}
@@ -270,6 +271,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative( 1) end),
     awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative(-1) end),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
+    awful.key({ modkey, "Control" }, "b", function () awful.util.spawn(chrome) end),
     awful.key({ modkey,           }, "Tab",
         function ()
             awful.client.focus.history.previous()
