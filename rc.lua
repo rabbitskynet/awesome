@@ -35,10 +35,16 @@ function updatebatterystate()
 		end
 		file:close()
 	end
-	if charging == 1 then
-		mybattmon.text = '<span color="green">' .. text .. '</span>'
-	else
-		mybattmon.text = '<span color="red">' .. text .. '</span>'
+	tmpvar = text:gsub('%%',''):gsub(',','.')
+	bcount = tonumber(tmpvar)
+	if bcount >= 85 then
+		mybattmon.text = '<span color="#00FF2F">' .. text .. '</span>'
+	elseif bcount >= 60 and bcount < 85 then
+		mybattmon.text = '<span color="#7ACD1B">' .. text .. '</span>'
+	elseif bcount >= 30 and bcount < 60 then
+		mybattmon.text = '<span color="#E86100">' .. text .. '</span>'
+	elseif bcount < 30 then
+		mybattmon.text = '<span color="#E80F00">' .. text .. '</span>'
 	end
 end
 
